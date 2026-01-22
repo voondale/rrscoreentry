@@ -1,0 +1,21 @@
+
+:root{--bg:#0f172a;--card:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--primary:#22c55e;--danger:#ef4444}
+body{font-family:Arial;background:#111;color:#eee;padding:20px;margin:0}
+.card{background:#0b1220;border:1px solid #1f2937;border-radius:12px;padding:16px;margin-bottom:20px}
+.collapsible-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.collapsible-header h2{margin:0}
+.chevron{transition:.2s;font-size:1.2rem}
+.collapsible.open .chevron{transform:rotate(90deg)}
+.collapsible-body{display:none;margin-top:12px}
+.collapsible.open .collapsible-body{display:block}
+.score-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;margin-top:10px}
+.team-block{display:flex;flex-direction:column}
+.team-name{font-size:1rem;font-weight:bold}
+button{padding:10px 14px;margin:5px;border:none;border-radius:8px;cursor:pointer}
+.primary{background:#22c55e;color:#052e16}
+.danger{background:#ef4444;color:white}
+table{width:100%;border-collapse:collapse}
+th,td{border-bottom:1px solid #1f2937;padding:8px;text-align:center}
+.badge-success{color:#22c55e}
+.badge-muted{color:#888}
+.hidden{display:none}
