@@ -4,8 +4,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Score Tracker – One Set (v4)</title>
+  <title>Score Tracker – One Set (v5 – Firestore)</title>
   <link rel="stylesheet" href="styles.css" />
+  <!-- Firebase SDKs (compat for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script>
+    // Your Firebase config (provided by Dale)
+    const firebaseConfig = {"apiKey": "AIzaSyBbWxryZcM5L8CDCARMXPWKWFwnt2FoAxc", "authDomain": "voontennis.firebaseapp.com", "projectId": "voontennis", "storageBucket": "voontennis.firebasestorage.app", "messagingSenderId": "656217805388", "appId": "1:656217805388:web:f49b2279ac8916cb5fdae9", "measurementId": "G-4WWFWESVYJ"};
+    firebase.initializeApp(firebaseConfig);
+    // Ensure anonymous auth so writes require auth per rules
+    firebase.auth().signInAnonymously().catch(console.error);
+  </script>
 </head>
 <body>
   <header class="app-header">
@@ -67,7 +78,7 @@
 
     <section class="card" id="standings">
       <h2>Standings</h2>
-      <div class="note">Sorted by Points, then Wins, then Player name.</div>
+      <div class="note">Sorted by Points, then Wins, then Player name. (Realtime from Firestore)</div>
       <table id="standingsTable">
         <thead>
           <tr>
@@ -86,10 +97,15 @@
     <section class="card" id="adminPanel" style="display:none;">
       <h2>Admin – Upload Schedule</h2>
       <input type="file" id="scheduleUpload" accept=".json" />
-      <button id="uploadScheduleBtn" class="primary">Upload Schedule</button>
-      <button id="resetScheduleBtn" class="danger">Reset to Default</button>
+      <button id="uploadScheduleBtn" class="primary">Upload Schedule to Firestore</button>
+      <button id="resetScheduleBtn" class="danger">Delete All Results</button>
+      <p class="note">Uploads write to Firestore collections <code>matches</code> and <code>results</code>.</p>
     </section>
   </main>
+
+  <footer>
+    <small>Hosted on GitHub Pages; data stored in Firestore (project: <code>voontennis</code>). Use a local server for local testing.</small>
+  </footer>
 
   <script src="app.js"></script>
 </body>
