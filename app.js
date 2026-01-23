@@ -1,44 +1,29 @@
-
-// v5 – Firestore-backed, one-set scoring, realtime UI
+// v5.1.1 – Raw = total games won by each player (sum of their team's games in each recorded set)
 const ADMIN_PASSWORD = 'doubletrouble';
-
-// Firebase handles are available globally via compat SDK
 const db = firebase.firestore();
 const auth = firebase.auth();
-
-// Collections
 const MATCHES_COL = 'matches';
 const RESULTS_COL = 'results';
-
-let schedule = []; // array of {id, round, team1, team2}
-let results = {};  // map id-> { set:{team1,team2}, winnerTeam }
+let schedule = [];
+let results = {};
 let unsubMatches = null, unsubResults = null;
 
-// UI wiring
 window.addEventListener('DOMContentLoaded', () => {
-  // Collapsible toggle
   const enterSection = document.getElementById('enter');
   enterSection.querySelector('.collapsible-header').onclick = () => {
     enterSection.classList.toggle('open');
   };
-
   document.getElementById('adminLoginBtn').onclick = adminLogin;
   document.getElementById('uploadScheduleBtn').onclick = uploadScheduleToFirestore;
   document.getElementById('resetScheduleBtn').onclick = deleteAllResults;
   document.getElementById('saveScore').onclick = saveScore;
   document.getElementById('deleteResultBtn').onclick = deleteCurrentResult;
-
-  // When auth is ready, start listeners
-  auth.onAuthStateChanged(() => {
-    startRealtime();
-  });
+  auth.onAuthStateChanged(() => { startRealtime(); });
 });
 
 function startRealtime(){
-  // Clean old listeners
   if (unsubMatches) unsubMatches();
   if (unsubResults) unsubResults();
-
   unsubMatches = db.collection(MATCHES_COL).orderBy('round').onSnapshot(snap => {
     schedule = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     populateMatchList();
@@ -46,14 +31,12 @@ function startRealtime(){
     recomputeStandings();
     renderStandings();
   });
-
   unsubResults = db.collection(RESULTS_COL).onSnapshot(snap => {
     results = {};
     snap.forEach(doc => { results[doc.id] = doc.data(); });
     renderMatchesTable();
     recomputeStandings();
     renderStandings();
-    // refresh selection view
     const idx = document.getElementById('matchSelect').value;
     if(idx) onSelectMatch();
   });
@@ -62,9 +45,9 @@ function startRealtime(){
 function populateMatchList(){
   const select = document.getElementById('matchSelect');
   select.innerHTML = '<option value="">— Select a match —</option>';
-  schedule.forEach((m, i) => {
+  schedule.forEach((m) => {
     const opt = document.createElement('option');
-    opt.value = m.id; // use document id
+    opt.value = m.id;
     opt.textContent = `Round ${m.round ?? ''}: ${m.team1} vs ${m.team2}`;
     select.appendChild(opt);
   });
@@ -77,13 +60,11 @@ function onSelectMatch(){
   const enter = document.getElementById('enter');
   enter.classList.add('open');
   if(!matchId){ inputs.classList.add('hidden'); document.getElementById('previousResult').innerHTML=''; return; }
-
   const m = schedule.find(x => x.id === matchId);
   if(!m) return;
   document.getElementById('team1Label').textContent = m.team1;
   document.getElementById('team2Label').textContent = m.team2;
   inputs.classList.remove('hidden');
-
   const prev = document.getElementById('previousResult');
   const existing = results[matchId];
   if(existing){
@@ -104,7 +85,6 @@ async function saveScore(){
   const s2 = Number(document.getElementById('team2Score').value);
   if(!Number.isFinite(s1) || !Number.isFinite(s2)) return alert('Enter valid numbers');
   if(s1 === s2) return alert('Scores cannot be tied');
-
   const winnerTeam = s1 > s2 ? 'team1' : 'team2';
   await db.collection(RESULTS_COL).doc(matchId).set({
     set: { team1: s1, team2: s2 },
@@ -133,7 +113,6 @@ function renderMatchesTable(){
     const statusHTML = isDone
       ? `<span class="badge badge-success"><span class="dot"></span>Completed</span>`
       : `<span class="badge badge-muted"><span class="dot"></span>Not played</span>`;
-
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${m.round ?? ''}</td>
@@ -147,7 +126,6 @@ function renderMatchesTable(){
     `;
     tbody.appendChild(tr);
   });
-
   tbody.querySelectorAll('button').forEach(btn => {
     btn.onclick = async () => {
       const id = btn.getAttribute('data-id');
@@ -162,36 +140,51 @@ function renderMatchesTable(){
   });
 }
 
-// Standings: recompute from schedule+results
+// Standings: Raw = per-player total games won (sum of their team's games each recorded set)
 function recomputeStandings(){
   const s = {};
-  function ensure(p){ if(!s[p]) s[p] = { Player:p, Pts:0, MP:0, W:0, L:0 }; }
+  function ensure(p){ if(!s[p]) s[p] = { Player:p, Pts:0, MP:0, W:0, Raw:0, L:0 }; }
 
+  // Ensure all players from schedule exist
   schedule.forEach(m => {
     const t1 = m.team1.split('&').map(x=>x.trim());
     const t2 = m.team2.split('&').map(x=>x.trim());
     [...t1, ...t2].forEach(ensure);
   });
 
+  // Apply results
   Object.entries(results).forEach(([id, r]) => {
     const m = schedule.find(x => x.id === id);
     if(!m) return;
     const t1 = m.team1.split('&').map(x=>x.trim());
     const t2 = m.team2.split('&').map(x=>x.trim());
+
+    // Everyone who played increments MP by 1
     [...t1, ...t2].forEach(p => s[p].MP += 1);
+
+    // Wins/Losses and Points as before
     const winners = r.winnerTeam==='team1' ? t1 : t2;
     const losers  = r.winnerTeam==='team1' ? t2 : t1;
     winners.forEach(p => { s[p].W += 1; s[p].Pts += 1; });
     losers.forEach(p  => { s[p].L += 1; });
+
+    // NEW: Raw accumulates GAMES won by the player's team
+    const gamesT1 = Number(r.set?.team1 || 0);
+    const gamesT2 = Number(r.set?.team2 || 0);
+    t1.forEach(p => { s[p].Raw += gamesT1; });
+    t2.forEach(p => { s[p].Raw += gamesT2; });
   });
 
-  // Save to global
   window.__standings = s;
 }
 
 function renderStandings(){
   const s = window.__standings || {};
-  const rows = Object.values(s).sort((a,b)=> b.Pts - a.Pts || b.W - a.W || a.Player.localeCompare(b.Player));
+  const rows = Object.values(s).sort((a,b)=>
+    b.Pts - a.Pts ||
+    b.W - a.W ||
+    a.Player.localeCompare(b.Player)
+  );
   const tbody = document.querySelector('#standingsTable tbody');
   tbody.innerHTML = '';
   rows.forEach((r,i)=>{
@@ -202,13 +195,13 @@ function renderStandings(){
       <td><strong>${r.Pts}</strong></td>
       <td>${r.MP}</td>
       <td>${r.W}</td>
+      <td>${r.Raw}</td>
       <td>${r.L}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-// Admin
 function adminLogin(){
   const pwd = prompt('Enter admin password:');
   if(pwd === ADMIN_PASSWORD){
@@ -226,11 +219,8 @@ async function uploadScheduleToFirestore(){
   let arr;
   try{ arr = JSON.parse(text); } catch{ return alert('Invalid JSON'); }
   if(!Array.isArray(arr)) return alert('Invalid format: expected an array');
-
   if(!confirm('This will overwrite the current matches collection and clear all results. Continue?')) return;
-
-  // Delete all existing matches & results
-  const batchSize = 400; // safety
+  const batchSize = 400;
   async function clearCollection(col){
     const snap = await db.collection(col).get();
     const chunks = [];
@@ -245,11 +235,9 @@ async function uploadScheduleToFirestore(){
   }
   await clearCollection(MATCHES_COL);
   await clearCollection(RESULTS_COL);
-
-  // Write new matches
   const batch = db.batch();
   arr.forEach((m, idx) => {
-    const id = String(idx); // deterministic id
+    const id = String(idx);
     const ref = db.collection(MATCHES_COL).doc(id);
     batch.set(ref, { round: m.round, team1: m.team1, team2: m.team2 });
   });

@@ -1,21 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Score Tracker – One Set (v5 – Firestore)</title>
+  <title>Score Tracker – One Set (v5.1.1 – Firestore)</title>
   <link rel="stylesheet" href="styles.css" />
   <!-- Firebase SDKs (compat for simplicity) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script>
-    // Your Firebase config (provided by Dale)
-    const firebaseConfig = {"apiKey": "AIzaSyBbWxryZcM5L8CDCARMXPWKWFwnt2FoAxc", "authDomain": "voontennis.firebaseapp.com", "projectId": "voontennis", "storageBucket": "voontennis.firebasestorage.app", "messagingSenderId": "656217805388", "appId": "1:656217805388:web:f49b2279ac8916cb5fdae9", "measurementId": "G-4WWFWESVYJ"};
-    firebase.initializeApp(firebaseConfig);
-    // Ensure anonymous auth so writes require auth per rules
-    firebase.auth().signInAnonymously().catch(console.error);
+  const firebaseConfig = {"apiKey": "AIzaSyBbWxryZcM5L8CDCARMXPWKWFwnt2FoAxc", "authDomain": "voontennis.firebaseapp.com", "projectId": "voontennis", "storageBucket": "voontennis.firebasestorage.app", "messagingSenderId": "656217805388", "appId": "1:656217805388:web:f49b2279ac8916cb5fdae9", "measurementId": "G-4WWFWESVYJ"};
+  firebase.initializeApp(firebaseConfig);
+  firebase.auth().signInAnonymously().catch(console.error);
   </script>
 </head>
 <body>
@@ -25,20 +22,17 @@
       <button id="adminLoginBtn">Admin Login</button>
     </div>
   </header>
-
   <main>
     <section class="card collapsible" id="enter">
       <div class="collapsible-header">
         <h2>Enter Match Result</h2>
         <span class="chevron">▶</span>
       </div>
-
       <div class="collapsible-body">
         <div class="field">
           <label for="matchSelect">Match</label>
           <select id="matchSelect"><option value="">— Select a match —</option></select>
         </div>
-
         <div id="scoreInputs" class="score-grid hidden">
           <div class="team-block">
             <div class="team-name" id="team1Label">Team 1</div>
@@ -50,16 +44,13 @@
             <input type="number" id="team2Score" min="0" placeholder="Team 2 games" />
           </div>
         </div>
-
         <div id="previousResult" class="note"></div>
-
         <div class="buttons-row">
           <button id="saveScore" class="primary">Save Match</button>
           <button id="deleteResultBtn" class="danger">Delete Result</button>
         </div>
       </div>
     </section>
-
     <section class="card" id="matches">
       <h2>Matches</h2>
       <table id="matchesTable">
@@ -75,7 +66,6 @@
         <tbody></tbody>
       </table>
     </section>
-
     <section class="card" id="standings">
       <h2>Standings</h2>
       <div class="note">Sorted by Points, then Wins, then Player name. (Realtime from Firestore)</div>
@@ -87,13 +77,13 @@
             <th>Pts</th>
             <th>MP</th>
             <th>W</th>
+            <th>Raw</th>
             <th>L</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </section>
-
     <section class="card" id="adminPanel" style="display:none;">
       <h2>Admin – Upload Schedule</h2>
       <input type="file" id="scheduleUpload" accept=".json" />
@@ -102,11 +92,9 @@
       <p class="note">Uploads write to Firestore collections <code>matches</code> and <code>results</code>.</p>
     </section>
   </main>
-
   <footer>
     <small>Hosted on GitHub Pages; data stored in Firestore (project: <code>voontennis</code>). Use a local server for local testing.</small>
   </footer>
-
   <script src="app.js"></script>
 </body>
 </html>
