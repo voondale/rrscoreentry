@@ -1,0 +1,17 @@
+*** Begin Patch
+*** Update File: app.js
+@@
+-  const rows = Object.values(s).sort((a,b)=> (b.Pts - a.Pts) || (b.W - a.W) || a.Player.localeCompare(b.Player));
++  // Sort by Points (desc), then Raw (desc), then Player (A→Z)
++  const rows = Object.values(s).sort((a,b) =>
++    (b.Pts - a.Pts) ||
++    (b.Raw - a.Raw) ||
++    a.Player.localeCompare(b.Player)
++  );
+*** End Patch
+*** Begin Patch
+*** Update File: index.html
+@@
+-  <div class="note">Sorted by Points, then Wins, then Player name. Substitutes do not receive stats; substituted players are zeroed for that round.</div>
++  <div class="note">Sorted by Points, then Raw, then Player name. Substitutes do not receive stats; substituted players are zeroed for that round.</div>
+*** End Patch
