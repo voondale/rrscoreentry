@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Score Tracker – One Set (v5.1.1 – Firestore)</title>
+  <title>Score Tracker – One Set (v5.3.5 – Firestore)</title>
   <link rel="stylesheet" href="styles.css" />
   <!-- Firebase SDKs (compat for simplicity) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -23,7 +23,7 @@
     </div>
   </header>
   <main>
-    <section class="card collapsible" id="enter">
+    <section class="card collapsible open" id="enter">
       <div class="collapsible-header">
         <h2>Enter Match Result</h2>
         <span class="chevron">▶</span>
@@ -51,14 +51,18 @@
         </div>
       </div>
     </section>
+
     <section class="card" id="standings">
       <h2>Standings</h2>
-      <div class="note">Sorted by Points, then Wins, then Player name. (Realtime from Firestore)</div>
+      <div class="note">Sorted by Points, then Raw, then Player name. Substitutes do not receive stats; substituted players are zeroed for that round.</div>
       <table id="standingsTable">
         <thead>
           <tr>
             <th>#</th>
             <th>Player</th>
+            <th>Phone</th>
+            <th>Subbed Out</th>
+            <th>Subbed In</th>
             <th>Pts</th>
             <th>MP</th>
             <th>W</th>
@@ -69,6 +73,7 @@
         <tbody></tbody>
       </table>
     </section>
+
     <section class="card" id="matches">
       <h2>Matches</h2>
       <table id="matchesTable">
@@ -84,16 +89,54 @@
         <tbody></tbody>
       </table>
     </section>
+
     <section class="card" id="adminPanel" style="display:none;">
       <h2>Admin – Upload Schedule</h2>
       <input type="file" id="scheduleUpload" accept=".json" />
       <button id="uploadScheduleBtn" class="primary">Upload Schedule to Firestore</button>
       <button id="resetScheduleBtn" class="danger">Delete All Results</button>
       <p class="note">Uploads write to Firestore collections <code>matches</code> and <code>results</code>.</p>
+      <div class="buttons-row">
+        <button id="exportPhonesBtn">Export Phones (CSV)</button>
+      </div>
+    </section>
+
+    <section class="card" id="subsPanel" style="display:none;">
+      <h2>Admin – Substitutions</h2>
+      <div class="field">
+        <label for="subsMatchSelect">Match</label>
+        <select id="subsMatchSelect"><option value="">— Select a match —</option></select>
+      </div>
+      <div id="subsForm" class="hidden">
+        <div class="field">
+          <label for="subsOriginal">Original player (out)</label>
+          <select id="subsOriginal"></select>
+        </div>
+        <div class="field">
+          <label for="subsSubstitute">Substitute (in)</label>
+          <input id="subsSubstitute" list="allPlayersList" placeholder="Type a player name" />
+          <datalist id="allPlayersList"></datalist>
+        </div>
+        <div class="buttons-row">
+          <button id="addSubBtn" class="primary">Add Substitution</button>
+        </div>
+      </div>
+      <div class="note">Existing substitutions for the selected match</div>
+      <table id="subsTable">
+        <thead>
+          <tr>
+            <th>Round</th>
+            <th>Original (out)</th>
+            <th>Substitute (in)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </section>
   </main>
   <footer>
-    <small>Hosted on GitHub Pages; data stored in Firestore (project: <code>voontennis</code>). Use a local server for local testing.</small>
+    <small>Hosted on GitHub Pages; data stored in Firestore (project: <code>voontennis</code>).</small>
   </footer>
   <script src="app.js"></script>
 </body>

@@ -9,7 +9,7 @@ main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:16px}
 .note{color:var(--muted);margin:6px 0 10px}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
 select,input{background:#0b1220;border:1px solid #1f2937;border-radius:8px;color:var(--text);padding:10px}
-button{cursor:pointer;border-radius:8px;border:1px solid #1f2937;background:#0b1220;color:var(--text);padding:10px 14px}
+button{cursor:pointer;border-radius:8px;border:1px solid #1f2937;background:#0b1220;color:#e5e7eb;padding:10px 14px}
 button.primary{background:var(--primary);border-color:transparent;color:#052e16;font-weight:600}
 button.danger{background:var(--danger);border-color:transparent;color:white}
 .buttons-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
@@ -28,10 +28,26 @@ button.danger{background:var(--danger);border-color:transparent;color:white}
 .collapsible.open .chevron{transform:rotate(90deg)}
 .collapsible-body{display:none;margin-top:12px}
 .collapsible.open .collapsible-body{display:block}
-/* Badges */
-.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #1f2937;border-radius:999px;padding:4px 10px;font-size:.85rem}
-.badge .dot{width:8px;height:8px;border-radius:50%}
-.badge-success{background:rgba(34,197,94,.15);border-color:#14532d}
-.badge-success .dot{background:#22c55e}
-.badge-muted{background:rgba(148,163,184,.15);border-color:#1f2937}
-.badge-muted .dot{background:#94a3b8}
+/* Phone cell/links */
+td.phone-cell{white-space:nowrap;text-align:left}
+a.phone-link{color:#22c55e;text-decoration:none;font-weight:600}
+a.phone-link:hover{text-decoration:underline}
+button.add-phone{background:#0b1220;border:1px dashed #334155;color:#94a3b8;padding:4px 8px;border-radius:6px;font-size:0.85rem}
+/* WhatsApp icon link */
+a.wa-icon { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; color:#22c55e; background:rgba(34,197,94,.12); border:1px solid #14532d; text-decoration:none; }
+a.wa-icon:hover { background: rgba(34,197,94,.22); }
+.wa-svg { width:18px; height:18px; display:block; }
+
+/* Badges (status pill + dot) */
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid #1f2937; border-radius:999px;
+  padding:4px 10px; font-size:.85rem
+}
+.badge .dot{ width:8px; height:8px; border-radius:50% }
+/* Completed (green) */
+.badge-success{ background:rgba(34,197,94,.15); border-color:#14532d }
+.badge-success .dot{ background:#22c55e }
+/* Not played (muted gray) */
+.badge-muted{ background:rgba(148,163,184,.15); border-color:#1f2937 }
+.badge-muted .dot{ background:#94a3b8 }
